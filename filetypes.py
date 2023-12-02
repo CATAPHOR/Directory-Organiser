@@ -14,7 +14,7 @@ type_dict = {
                     "mrw", "mtl", "ora", "orf", "ori", "p3l", "p3m", "p3r", "pbm", "pcd", "pcx", "pdd",
                     "psb", "psdt", "psd", "psf", "pxr", "r3d", "raf", "raw", "rle", "rw2", "rwl", "rwz",
                     "shc", "shh", "srf", "sr2", "srw", "stl", "sta", "svg", "thumb", "wdp", "wmf", "x3f",
-                    "xcf"], 
+                    "xcf", "ARW"], 
                     "images"),
     **dict.fromkeys(["avi", "flv", "m4a", "mkv", "mov", "mp4", "mpg", "mpeg", "vob", "wmv", "264", "bdmv",
                     "dav", "dv", "evo", "f4v", "flc", "flic", "fli", "hdmov", "h264", "ifo", "IVF", "m1v",
