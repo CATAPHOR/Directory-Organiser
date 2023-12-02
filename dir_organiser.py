@@ -36,9 +36,14 @@ def move_files(filetype_dict, path, category_folders, ignore_dirs):
         if child_path.is_file():
             # determine directory to move to
             try:
-                new_child_path = path / filetype_dict[child_path.suffix[1:]]
+                category = filetype_dict[child_path.suffix[1:]]
             except KeyError:
-                new_child_path = path / "other"
+                try:
+                    category = filetype_dict[child_path.suffix[1:].lower()]
+                except KeyError:
+                    category = "other"
+            new_child_path = path / category
+            
             # attempt move operation
             try:
                 shutil.move(child_path, new_child_path)
@@ -101,7 +106,10 @@ def count_filetypes(counter, path, filetype_dict):
             try:
                 category = filetype_dict[child_path.suffix[1:]]
             except KeyError:
-                category = "other"
+                try:
+                    category = filetype_dict[child_path.suffix[1:].lower()]
+                except KeyError:
+                    category = "other"
             counter[category] += 1
 
 if __name__ == "__main__":
@@ -147,4 +155,4 @@ if __name__ == "__main__":
             for path in errors:
                 print(f"\t{path.name}")
         
-        input("\nPress [Enter] to exit.")
+        input("\nPress [Enter] to exit.\n")
