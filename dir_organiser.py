@@ -30,6 +30,7 @@ def move_files(filetype_dict, path, category_folders, ignore_dirs):
     file_count = 0
     dir_count = 0
     errors = []
+    output_str = f""
     
     for child_path in path.iterdir():
         # file moving
@@ -48,23 +49,26 @@ def move_files(filetype_dict, path, category_folders, ignore_dirs):
             try:
                 shutil.move(child_path, new_child_path)
                 file_count += 1
-                print(f"FILE:\t'{child_path.name}' -> {new_child_path.name}")
-            except shutil.Error:
+                output_str += f"FILE:\t'{child_path.name}' -> {new_child_path.name}\n"
+            except Exception:
+                # add to errors, delete aborted attempt, continue to next file
                 errors.append(child_path)
+                (new_child_path / child_path.name).unlink(missing_ok = True)
+                continue
             
         # folder moving
         elif child_path.is_dir() and not ignore_dirs:
-            dir_move_output = move_folder(filetype_dict, child_path, category_folders)
+            dir_move_output = move_folder(filetype_dict, child_path, category_folders, output_str)
             # update counts if not category folder
             if dir_move_output[0]:
                 dir_count += dir_move_output[1]
                 if not dir_move_output[1]:
                     errors.append(child_path)
             
-    return file_count, dir_count, errors
+    return file_count, dir_count, errors, output_str
 
 # determine categories to place folders into; detects frequency of filetypes within
-def move_folder(filetype_dict, path, category_folders):
+def move_folder(filetype_dict, path, category_folders, output_str):
     if path.name not in category_folders:
         counter = Counter()
         count_filetypes(counter, path, filetype_dict)
@@ -87,10 +91,13 @@ def move_folder(filetype_dict, path, category_folders):
         # move folder
         try:
             shutil.move(path, new_path)
-            print(f"FOLDER:\t'{path.name}' -> .\\{new_path.name}")
+            output_str += f"FOLDER:\t'{path.name}' -> .\\{new_path.name}\n"
             # bools: [not a category folder]: true; [operation successful]: true
             return True, True
-        except shutil.Error:
+        except Exception:
+            # delete aborted attempt
+            if (new_path / path.name).exists():
+                shutil.rmtree(new_path / path.name)
             # bools: see above
             return True, False
     
@@ -145,14 +152,17 @@ if __name__ == "__main__":
         
         # move files to appropriate categories
         print("\nMoving files:")
-        file_count, dir_count, errors = move_files(type_dict, folder, category_folders, ignore_dirs)
+        file_count, dir_count, errors, output_str = move_files(type_dict, 
+                                                               folder, category_folders, ignore_dirs)
+        # print files that were moved
+        print(output_str)
         
-        print("\nFolder has been reorganised categorically by file-type.")
+        print("Folder has been reorganised categorically by file-type.")
         print(f"{file_count} file{'s' * (file_count != 1)} moved; "
               f"{dir_count} folder{'s' * (dir_count != 1)} moved.")
         if len(errors) > 0:
             print(f"\n{len(errors)} files and/or folders could not be moved:")
-            for path in errors:
-                print(f"\t{path.name}")
+            for id, path in enumerate(errors):
+                print(f"{id + 1}: {path.name}")
         
         input("\nPress [Enter] to exit.\n")
