@@ -1,5 +1,5 @@
 # Directory Organiser
-Python script to categorise and reorganise files in a directory.
+Python script to reorganise files (through moving them into categorical subfolders) in a directory.
 
 ## Run Instructions
 - Provide a singular argument of the filepath to directory to organise.
